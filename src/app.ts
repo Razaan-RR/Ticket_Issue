@@ -1,9 +1,22 @@
-import express, { type Application, type Request, type Response } from "express";
+import express, { type Application, type Request, type Response } from 'express'
 
-const app: Application = express();
+import logger from './middleware/logger.js'
+import globalErrorHandler from './middleware/globalErrorHandler.js'
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello world");
-});
+import authRoutes from './api/routes/auth.route.js'
 
-export default app;
+const app: Application = express()
+
+app.use(express.json())
+
+app.use(logger)
+
+app.use('/api/auth', authRoutes)
+
+app.get('/', (req: Request, res: Response) => {
+  res.send('Hello world')
+})
+
+app.use(globalErrorHandler)
+
+export default app
