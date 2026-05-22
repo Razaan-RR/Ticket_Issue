@@ -174,3 +174,28 @@ export const updateIssue = async (req: Request, res: Response) => {
     StatusCodes.OK,
   )
 }
+
+export const deleteIssue = async (req: Request, res: Response) => {
+  const issueId = Number(req.params.id)
+
+  const deleted = await issueService.deleteIssue(issueId)
+
+  if (!deleted) {
+    return sendResponse(
+      res,
+      {
+        error: true,
+        message: 'Issue not found',
+      },
+      StatusCodes.NOT_FOUND,
+    )
+  }
+
+  return sendResponse(
+    res,
+    {
+      message: 'Issue deleted successfully',
+    },
+    StatusCodes.OK,
+  )
+}

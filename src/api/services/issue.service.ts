@@ -201,6 +201,22 @@ class IssueService {
 
     return result[0]
   }
+
+  async deleteIssue(id: number) {
+    const result = await sql`
+    DELETE FROM issues
+
+    WHERE id = ${id}
+
+    RETURNING *
+  `
+
+    if (result.length === 0) {
+      return null
+    }
+
+    return result[0]
+  }
 }
 
 export default new IssueService()
