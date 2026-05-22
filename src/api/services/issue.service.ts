@@ -96,7 +96,11 @@ class IssueService {
     return issues.map((issue) => ({
       ...issue,
 
-      reporter: users.find((u) => u.id === issue.reporter_id)!,
+      reporter: users.find((u) => u.id === issue.reporter_id) as {
+        id: number
+        name: string
+        role: 'contributor' | 'maintainer'
+      },
     }))
   }
 
@@ -130,7 +134,11 @@ class IssueService {
     return {
       ...issue,
 
-      reporter: reporter[0],
+      reporter: reporter[0] as {
+        id: number
+        name: string
+        role: 'contributor' | 'maintainer'
+      },
     }
   }
 
