@@ -6,6 +6,7 @@ import {
   createIssue,
   getAllIssues,
   getIssue,
+  updateIssue,
 } from '../controllers/issue.controller.js'
 
 const router = Router()
@@ -15,5 +16,7 @@ router.post('/', auth, createIssue)
 router.get('/', getAllIssues)
 
 router.get('/:id', getIssue)
+
+router.patch('/:id', auth, updateIssue)
 
 export default router

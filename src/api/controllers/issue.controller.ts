@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes'
 import issueService from '../services/issue.service.js'
 
 import { sendResponse } from '../../utils/sendResponse.js'
-import type { IssueStatus, IssueType } from '../../types/index.js'
+import type { IssueStatus, IssueType, UpdateIssue } from '../../types/index.js'
 
 export const createIssue = async (req: Request, res: Response) => {
   const { title, description, type } = req.body
@@ -92,6 +92,84 @@ export const getIssue = async (req: Request, res: Response) => {
       message: 'Issue fetched successfully',
 
       data: issue,
+    },
+    StatusCodes.OK,
+  )
+}
+
+export const updateIssue = async (req: Request, res: Response) => {
+  const issueId = Number(req.params.id)
+
+  const issue = await issueService.getIssueRaw(issueId)
+
+  if (!issue) {
+    return sendResponse(
+      res,
+      {
+        error: true,
+        message: 'Issue not found',
+      },
+      StatusCodes.NOT_FOUND,
+    )
+  }
+
+  const user = req.user!
+
+  const isMaintainer = user.role === 'maintainer'
+
+  const isOwner = issue.reporter_id === user.id
+
+  if (!isMaintainer) {
+    if (!isOwner) {
+      return sendResponse(
+        res,
+        {
+          error: true,
+          message: 'Forbidden',
+        },
+        StatusCodes.FORBIDDEN,
+      )
+    }
+
+    if (issue.status !== 'open') {
+      return sendResponse(
+        res,
+        {
+          error: true,
+          message: 'Cannot update non-open issue',
+        },
+        StatusCodes.CONFLICT,
+      )
+    }
+  }
+
+  const payload: UpdateIssue = {
+    title: req.body.title,
+
+    description: req.body.description,
+
+    type: req.body.type,
+  }
+
+  const updated = await issueService.updateIssue(issueId, payload)
+
+  if (!updated) {
+    return sendResponse(
+      res,
+      {
+        error: true,
+        message: 'Failed to update issue',
+      },
+      StatusCodes.BAD_REQUEST,
+    )
+  }
+
+  return sendResponse(
+    res,
+    {
+      message: 'Issue updated successfully',
+
+      data: updated,
     },
     StatusCodes.OK,
   )

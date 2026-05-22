@@ -5,6 +5,7 @@ import type {
   IssueStatus,
   IssueType,
   IssueWithReporter,
+  UpdateIssue,
 } from '../../types'
 
 class IssueService {
@@ -83,7 +84,9 @@ class IssueService {
               id,
               name,
               role
+
             FROM users
+
             WHERE id = ANY(
               ${reporterIds}
             )
@@ -100,7 +103,9 @@ class IssueService {
   async getIssueById(id: number): Promise<IssueWithReporter | null> {
     const result = await sql`
       SELECT *
+
       FROM issues
+
       WHERE id = ${id}
     `
 
@@ -115,7 +120,9 @@ class IssueService {
           id,
           name,
           role
+
         FROM users
+
         WHERE id =
         ${issue.reporter_id}
       `
@@ -125,6 +132,74 @@ class IssueService {
 
       reporter: reporter[0],
     }
+  }
+
+  async getIssueRaw(id: number): Promise<Issue | null> {
+    const result = await sql`
+      SELECT *
+
+      FROM issues
+
+      WHERE id = ${id}
+    `
+
+    if (result.length === 0) {
+      return null
+    }
+
+    return result[0] as Issue
+  }
+
+  async updateIssue(
+    id: number,
+
+    payload: UpdateIssue,
+  ) {
+    const current = await this.getIssueRaw(id)
+
+    if (!current) {
+      return null
+    }
+
+    const result = await sql`
+      UPDATE issues
+
+      SET
+
+      title =
+      COALESCE(
+        ${payload.title},
+        ${current.title}
+      ),
+
+      description =
+      COALESCE(
+        ${payload.description},
+        ${current.description}
+      ),
+
+      type =
+      COALESCE(
+        ${payload.type},
+        ${current.type}
+      ),
+
+      status =
+      COALESCE(
+        ${payload.status},
+        ${current.status}
+      ),
+
+      updated_at =
+      NOW()
+
+      WHERE id =
+      ${id}
+
+      RETURNING *
+    `
+
+    return result[0]
   }
 }
 
