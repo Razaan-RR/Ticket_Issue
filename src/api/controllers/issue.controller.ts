@@ -145,10 +145,9 @@ export const updateIssue = async (req: Request, res: Response) => {
 
   const payload: UpdateIssue = {
     title: req.body.title,
-
     description: req.body.description,
-
     type: req.body.type,
+    status: req.body.status,
   }
 
   const updated = await issueService.updateIssue(issueId, payload)
