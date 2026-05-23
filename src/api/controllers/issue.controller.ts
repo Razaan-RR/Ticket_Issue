@@ -16,6 +16,43 @@ export const createIssue = async (req: Request, res: Response) => {
       {
         error: true,
         message: 'Title, description and type are required',
+        errors: null,
+      },
+      StatusCodes.BAD_REQUEST,
+    )
+  }
+
+  if (title.trim().length > 150) {
+    return sendResponse(
+      res,
+      {
+        error: true,
+        message: 'Title cannot exceed 150 characters',
+        errors: null,
+      },
+      StatusCodes.BAD_REQUEST,
+    )
+  }
+
+  if (description.trim().length < 20) {
+    return sendResponse(
+      res,
+      {
+        error: true,
+        message: 'Description must be at least 20 characters',
+        errors: null,
+      },
+      StatusCodes.BAD_REQUEST,
+    )
+  }
+
+  if (type !== 'bug' && type !== 'feature_request') {
+    return sendResponse(
+      res,
+      {
+        error: true,
+        message: 'Type must be bug or feature_request',
+        errors: null,
       },
       StatusCodes.BAD_REQUEST,
     )
