@@ -28,6 +28,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 
 // src/app.ts
 var import_express3 = __toESM(require("express"), 1);
+var import_cors = __toESM(require("cors"), 1);
 
 // src/middleware/logger.ts
 var import_colors = require("kleur/colors");
@@ -189,11 +190,16 @@ var AuthService = class {
 var auth_service_default = new AuthService();
 
 // src/utils/sendResponse.ts
-function sendResponse(res, { message, data, error }, status = 200) {
-  res.status(status).json({
-    success: error ? false : true,
+function sendResponse(res, {
+  message,
+  data,
+  errors,
+  error
+}, status = 200) {
+  return res.status(status).json({
+    success: !error,
     message,
-    data: error ? void 0 : data
+    ...error ? { errors } : { data }
   });
 }
 
@@ -670,7 +676,8 @@ var updateIssue = async (req, res) => {
   const payload = {
     title: req.body.title,
     description: req.body.description,
-    type: req.body.type
+    type: req.body.type,
+    status: req.body.status
   };
   const updated = await issue_service_default.updateIssue(issueId, payload);
   if (!updated) {
@@ -730,12 +737,16 @@ var issue_route_default = router2;
 
 // src/app.ts
 var app = (0, import_express3.default)();
+app.use((0, import_cors.default)());
 app.use(import_express3.default.json());
 app.use(logger_default);
 app.use("/api/auth", auth_route_default);
 app.use("/api/issues", issue_route_default);
 app.get("/", (req, res) => {
-  res.send("Hello world");
+  res.json({
+    success: true,
+    message: "DevPulse API running"
+  });
 });
 app.use(globalErrorHandler_default);
 var app_default = app;

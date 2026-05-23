@@ -4,7 +4,7 @@ A collaborative backend platform for software teams to report bugs, create featu
 
 ## Live URL
 
-
+https://ticket-issue2.vercel.app/
 
 ---
 
